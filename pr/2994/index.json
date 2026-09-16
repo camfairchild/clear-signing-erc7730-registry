@@ -1,0 +1,36 @@
+{
+  "indexVersion": 1,
+  "pr": 2994,
+  "updatedAt": "2026-09-16T15:04:13.335Z",
+  "runs": [
+    {
+      "runId": 35018750397,
+      "runUrl": "https://github.com/ethereum/clear-signing-erc7730-registry/actions/runs/35018750397",
+      "headSha": "8029b381fb926af1db605e5911e88e5452defee2",
+      "startedAt": "2026-09-15T20:18:03Z",
+      "completedAt": "2026-09-15T20:19:30Z",
+      "generatedAt": "2026-09-16T13:54:32.496Z",
+      "schemaVersion": 1,
+      "summary": {
+        "descriptors": 1,
+        "missingTests": 0,
+        "cases": 3,
+        "byStatus": {
+          "rust-clear-signing": {
+            "pass": 3,
+            "fail": 0,
+            "error": 0,
+            "skipped": 0
+          },
+          "sourcify-ts-clear-signing": {
+            "pass": 3,
+            "fail": 0,
+            "error": 0,
+            "skipped": 0
+          }
+        },
+        "disagreements": 0
+      }
+    }
+  ]
+}
