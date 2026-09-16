@@ -1,15 +1,15 @@
 {
   "indexVersion": 1,
   "pr": 2984,
-  "updatedAt": "2026-09-16T15:04:10.245Z",
+  "updatedAt": "2026-09-16T15:07:05.001Z",
   "runs": [
     {
       "runId": 34941958423,
-      "runUrl": null,
+      "runUrl": "https://github.com/ethereum/clear-signing-erc7730-registry/actions/runs/34941958423",
       "headSha": "b371145e1d99d4387b02da608aa8156e0408126b",
-      "startedAt": null,
-      "completedAt": null,
-      "generatedAt": "2026-09-16T14:08:27.374Z",
+      "startedAt": "2026-09-15T07:29:26Z",
+      "completedAt": "2026-09-15T07:30:41Z",
+      "generatedAt": "2026-09-16T15:06:08.951Z",
       "schemaVersion": 1,
       "summary": {
         "descriptors": 8,
