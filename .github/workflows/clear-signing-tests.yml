@@ -217,12 +217,17 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      # The registry and ercs trees of the base are for the test report: the
+      # base version of a modified descriptor, with its includes.
       - name: Checkout base scripts
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: base-scripts
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            registry
+            ercs
 
       - name: Get changed descriptor, shared and testsv2 files
         id: changed-files
@@ -293,6 +298,67 @@ jobs:
             done
 
           cat pr-context/context.json
+
+      # The test report shows each descriptor as tested, the base version it
+      # replaces, and whether the pull request added or modified each file.
+      # The head checkout holds the head, base-scripts holds the base tree.
+      # Nothing here may fail the job: the runner jobs give the verdict, and
+      # the report shows a gap where a file could not be read.
+      - name: Add the descriptors and the changes to the pull request context
+        if: always()
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          TEST_MATRIX: ${{ steps.detect.outputs.test_matrix }}
+          ADDED_FILES: ${{ steps.changed-files.outputs.added_files }}
+          MODIFIED_FILES: ${{ steps.changed-files.outputs.modified_files }}
+          RENAMED_FILES: ${{ steps.changed-files.outputs.renamed_files }}
+          DELETED_FILES: ${{ steps.changed-files.outputs.deleted_files }}
+        run: |
+          TEST_MATRIX="${TEST_MATRIX:-[]}"
+          RESOLVE=base-scripts/.github/scripts/resolve-erc7730-includes.js
+
+          resolve() {
+            if ! node "$RESOLVE" "$1" "$2"; then
+              echo "::warning file=$1::Could not resolve the includes of $1 for the test report"
+            fi
+          }
+
+          echo "$TEST_MATRIX" | jq -r '.[].descriptor' | while IFS= read -r descriptor; do
+            if [ -z "$descriptor" ]; then continue; fi
+            if [ -f "$descriptor" ]; then
+              resolve "$descriptor" "pr-context/descriptors/$descriptor"
+            fi
+            if [ -f "base-scripts/$descriptor" ]; then
+              resolve "base-scripts/$descriptor" "pr-context/base-descriptors/$descriptor"
+            fi
+          done
+
+          # Whether the pull request added, modified or left alone the
+          # descriptor and the test file of each matrix entry. The lists come
+          # from the changed-files step, separated by spaces; a registry path
+          # has none.
+          kind() {
+            case " $DELETED_FILES " in *" $1 "*) echo deleted; return ;; esac
+            case " $ADDED_FILES " in *" $1 "*) echo added; return ;; esac
+            case " $MODIFIED_FILES $RENAMED_FILES " in *" $1 "*) echo modified; return ;; esac
+            echo unchanged
+          }
+          CHANGES=$(echo "$TEST_MATRIX" | jq -r '.[] | "\(.descriptor)\t\(.test_file)"' |
+            while IFS=$'\t' read -r descriptor test_file; do
+              printf '%s\t%s\t%s\n' "$descriptor" "$(kind "$descriptor")" "$(kind "$test_file")"
+            done |
+            jq -R -s 'split("\n") | map(select(length > 0) | split("\t"))
+              | map({key: .[0], value: {descriptor: .[1], tests: .[2]}}) | from_entries')
+
+          if [ -z "$CHANGES" ]; then CHANGES='{}'; fi
+
+          if [ -f pr-context/context.json ]; then
+            jq --arg base_sha "$BASE_SHA" --argjson changes "$CHANGES" \
+              '. + {base_sha: $base_sha, changes: $changes}' \
+              pr-context/context.json > pr-context/context.tmp
+            mv pr-context/context.tmp pr-context/context.json
+          fi
+          find pr-context -type f | sort
 
       - name: Collect the recommendations
         # The hashFiles test lets the pull request that adds the script pass.
