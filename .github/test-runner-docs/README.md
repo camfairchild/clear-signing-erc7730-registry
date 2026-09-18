@@ -78,6 +78,12 @@ Write a single `results.json` per descriptor to the working directory.
 | `cases[].status`      | yes         | enum   | One of `pass`, `fail`, `error`, `skipped` (see below)                                                                                                                                                                                                       |
 | `cases[].rendered`    | conditional | object | What the runner produced. Same shape as `expected` in the test data file — see [The `expected` block](../../README.md#the-expected-block) in the main README for the field-level breakdown. Required on `pass` and `fail`; omitted on `error` and `skipped` |
 | `cases[].message`     | optional    | string | Human-readable note. Required on `error` and `skipped`; optional on `fail`                                                                                                                                                                                  |
+| `cases[].warnings`    | optional    | array  | Notes that did not change the verdict, one string each. The test report page shows them next to the rendered output                                                                                                                                       |
+| `cases[].format`      | optional    | string | The `display.formats` key the implementation matched. The test report page compares it with the key that the selector of the transaction hits                                                                                                              |
+| `cases[].chainId`     | optional    | number | The chain the implementation rendered for                                                                                                                                                                                                                  |
+| `cases[].durationMs`  | optional    | number | How long the case took, in milliseconds                                                                                                                                                                                                                    |
+
+The optional keys are read by the test report bundle, see [`bundle.md`](./bundle.md). A runner that omits them loses nothing in the comment.
 
 **Calldata formatters.** Fields that use a calldata formatter (the field's value is itself an encoded inner call) appear as a nested `rendered`-shaped object in `fields`; nesting is recursive.
 

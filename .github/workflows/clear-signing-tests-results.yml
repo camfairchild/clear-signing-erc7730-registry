@@ -110,12 +110,17 @@ jobs:
       # The scripts come from the default branch, so a fork cannot change
       # them. Every step up to the comment continues on error: the comment
       # matters more than the report.
+      #
+      # The token of this job can write, so it stays out of reach of the
+      # dependencies: the checkout keeps no credentials, the install runs no
+      # package scripts, and no cache is restored.
       - name: Checkout the scripts
         if: steps.pr.outputs.found == 'true'
         continue-on-error: true
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           path: scripts
+          persist-credentials: false
           sparse-checkout: |
             .github/scripts
             package.json
@@ -127,14 +132,12 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: "22"
-          cache: "npm"
-          cache-dependency-path: scripts/package-lock.json
 
       - name: Install the dependencies of the scripts
         if: steps.pr.outputs.found == 'true'
         continue-on-error: true
         working-directory: scripts
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # The run and the pull request come from the event and from the step
       # above, not from the artifact, so a fork cannot change them. The base

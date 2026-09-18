@@ -29,7 +29,10 @@
 const fs = require('fs');
 const path = require('path');
 const { parseArgs } = require('util');
-const { parseAbiItem, parseTransaction, slice, toFunctionSelector } = require('viem');
+const { parseTransaction } = require('viem');
+// The same selector logic as the coverage check, so the check and the
+// report cannot disagree on which format a test hits.
+const { selectorOf, testSelector, reason } = require('./check-selector-coverage');
 
 const SCHEMA_VERSION = 1;
 const STATUSES = new Set(['pass', 'fail', 'error', 'skipped']);
@@ -132,9 +135,6 @@ function diffRendered(expected, rendered, base = '') {
 // The descriptor side: formats, selectors, recommendations
 // ---------------------------------------------------------------------------
 
-/** viem errors carry a one-line summary; other errors only have a message. */
-const reason = (error) => error.shortMessage ?? error.message;
-
 /**
  * The formats of a descriptor with the selector of each one. A calldata
  * format key is a function signature with parameter names; the ABI parser
@@ -150,7 +150,7 @@ function formatsOf(descriptor, kind) {
     const entry = { selector: null, primaryType: null, error: null, cases: [] };
     if (kind === 'calldata') {
       try {
-        entry.selector = toFunctionSelector(parseAbiItem(`function ${key.trim()}`));
+        entry.selector = selectorOf(key);
       } catch (error) {
         entry.error = `not a function signature: ${reason(error)}`;
       }
@@ -165,20 +165,28 @@ function formatsOf(descriptor, kind) {
 /** The facts of a test input that the viewer needs before it decodes it. */
 function inputOf(test) {
   if (typeof test.rawTx === 'string') {
+    let tx;
     try {
-      const tx = parseTransaction(test.rawTx);
-      const data = tx.data ?? '0x';
-      return {
-        type: 'calldata',
-        chainId: tx.chainId ?? null,
-        to: tx.to ?? null,
-        value: tx.value != null ? tx.value.toString() : '0',
-        selector: data.length >= 10 ? slice(data, 0, 4) : null,
-        txType: tx.type ?? null,
-      };
+      tx = parseTransaction(test.rawTx);
     } catch (error) {
       return { type: 'calldata', error: `rawTx cannot be decoded: ${reason(error)}` };
     }
+    // The coverage check defines what a test calls. Calldata shorter than a
+    // selector calls nothing.
+    let selector = null;
+    try {
+      selector = testSelector(test);
+    } catch {
+      selector = null;
+    }
+    return {
+      type: 'calldata',
+      chainId: tx.chainId ?? null,
+      to: tx.to ?? null,
+      value: tx.value != null ? tx.value.toString() : '0',
+      selector,
+      txType: tx.type ?? null,
+    };
   }
   if (isObject(test.data)) {
     const domain = isObject(test.data.domain) ? test.data.domain : {};
@@ -208,7 +216,9 @@ function recommendationsOf(descriptor) {
   if (isObject(formats)) {
     for (const [key, format] of Object.entries(formats)) {
       if (!isObject(format)) continue;
-      if (format.interpolatedIntent == null || format.interpolatedIntent === '') {
+      // The same test as check-recommended-fields.js, so the comment and the
+      // page agree.
+      if (!('interpolatedIntent' in format)) {
         out.push({ type: 'no-interpolated-intent', format: key });
       }
     }
@@ -221,6 +231,24 @@ function recommendationsOf(descriptor) {
 // ---------------------------------------------------------------------------
 // The bundle
 // ---------------------------------------------------------------------------
+
+/** One path segment: no separator, and not only dots. */
+const SEGMENT = /^(?!\.+$)[A-Za-z0-9._-]+$/;
+
+/** Whether a matrix entry names a registry descriptor, registry/<entity>/<name>.json. */
+function isMatrixEntry(entry) {
+  return (
+    isObject(entry) &&
+    typeof entry.entity === 'string' &&
+    SEGMENT.test(entry.entity) &&
+    typeof entry.descriptor_name === 'string' &&
+    SEGMENT.test(entry.descriptor_name) &&
+    entry.descriptor === `registry/${entry.entity}/${entry.descriptor_name}.json`
+  );
+}
+
+/** Whether `file` resolves to a path inside `root`. */
+const inside = (root, file) => path.resolve(file).startsWith(path.resolve(root) + path.sep);
 
 function build({ contextRoot, artifactsRoot, env }) {
   // Without the context there is no pull request to describe, so there is
@@ -262,14 +290,27 @@ function build({ contextRoot, artifactsRoot, env }) {
 
   const descriptors = [];
   for (const entry of matrix) {
+    // The matrix comes from a fork, and its entries name files. Only an
+    // entry that names a registry descriptor is read, and only from inside
+    // the context directory.
+    if (!isMatrixEntry(entry)) {
+      warn(`skipping matrix entry ${JSON.stringify(entry)}: not a registry descriptor`);
+      continue;
+    }
     const descriptorPath = entry.descriptor;
     const entity = entry.entity;
     const name = entry.descriptor_name;
     const kind = name.startsWith('eip712-') ? 'eip712' : 'calldata';
-    const head = readJson(path.join(contextRoot, 'descriptors', descriptorPath));
+    const headFile = path.join(contextRoot, 'descriptors', descriptorPath);
     const baseFile = path.join(contextRoot, 'base-descriptors', descriptorPath);
+    const fixtureFile = path.join(contextRoot, 'tests', `${entity}__${name}.tests.json`);
+    if (![headFile, baseFile, fixtureFile].every((f) => inside(contextRoot, f))) {
+      warn(`skipping ${descriptorPath}: outside the context directory`);
+      continue;
+    }
+    const head = readJson(headFile);
     const base = fs.existsSync(baseFile) ? readJson(baseFile) : null;
-    const fixture = readJson(path.join(contextRoot, 'tests', `${entity}__${name}.tests.json`));
+    const fixture = readJson(fixtureFile);
     const formats = formatsOf(head, kind);
 
     const change = isObject(changes[descriptorPath])
@@ -344,7 +385,7 @@ function build({ contextRoot, artifactsRoot, env }) {
       name,
       kind,
       change,
-      testFile: entry.test_file ?? null,
+      testFile: typeof entry.test_file === 'string' ? entry.test_file : null,
       head,
       base,
       dataProvider: isObject(fixture?.dataProvider) ? fixture.dataProvider : null,
