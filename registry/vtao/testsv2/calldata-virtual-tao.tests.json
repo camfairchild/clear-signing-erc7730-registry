@@ -35,6 +35,7 @@
       "rawTx": "0x02f86f8203c401843b9aca0084773594008307a1209431049849ccdd983d8f401077537438eaf12b12af80b844095ea7b300000000000000000000000079ce842deaa61d7668a2f31d964502f0d777ba8900000000000000000000000000000000000000000000000091b77e5e5d9a0000c0",
       "expected": {
         "intent": "Approve vTAO",
+        "interpolatedIntent": "Allow to spend 10.5 vTAO",
         "owner": "Latent",
         "fields": [
           { "label": "Spender", "value": "0x79Ce842dEAA61D7668a2f31D964502F0d777bA89" },
@@ -47,6 +48,7 @@
       "rawTx": "0x02f86f8203c401843b9aca0084773594008307a1209431049849ccdd983d8f401077537438eaf12b12af80b844095ea7b300000000000000000000000079ce842deaa61d7668a2f31d964502f0d777ba89ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0",
       "expected": {
         "intent": "Approve vTAO",
+        "interpolatedIntent": "Allow to spend Unlimited",
         "owner": "Latent",
         "fields": [
           { "label": "Spender", "value": "0x79Ce842dEAA61D7668a2f31D964502F0d777bA89" },
