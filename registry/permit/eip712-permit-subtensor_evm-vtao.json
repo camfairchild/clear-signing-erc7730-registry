@@ -1,0 +1,11 @@
+{
+  "$schema": "../../specs/erc7730-v2.schema.json",
+  "includes": "../../ercs/eip712-erc2612-permit.json",
+  "context": {
+    "eip712": {
+      "deployments": [{ "chainId": 964, "address": "0x31049849CCdD983D8F401077537438eaF12B12Af" }],
+      "domain": { "name": "Virtual TAO", "version": "1" }
+    }
+  },
+  "metadata": { "owner": "Virtual TAO" }
+}
