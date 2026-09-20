@@ -52,7 +52,7 @@
         "owner": "Latent",
         "fields": [
           { "label": "Spender", "value": "0x79Ce842dEAA61D7668a2f31D964502F0d777bA89" },
-          { "label": "Amount", "value": "Unlimited" }
+          { "label": "Amount", "value": "Unlimited vTAO" }
         ]
       }
     }
