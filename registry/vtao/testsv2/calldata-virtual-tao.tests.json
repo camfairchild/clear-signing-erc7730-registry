@@ -48,7 +48,7 @@
       "rawTx": "0x02f86f8203c401843b9aca0084773594008307a1209431049849ccdd983d8f401077537438eaf12b12af80b844095ea7b300000000000000000000000079ce842deaa61d7668a2f31d964502f0d777ba89ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0",
       "expected": {
         "intent": "Approve vTAO",
-        "interpolatedIntent": "Allow to spend Unlimited",
+        "interpolatedIntent": "Allow to spend Unlimited vTAO",
         "owner": "Latent",
         "fields": [
           { "label": "Spender", "value": "0x79Ce842dEAA61D7668a2f31D964502F0d777bA89" },
