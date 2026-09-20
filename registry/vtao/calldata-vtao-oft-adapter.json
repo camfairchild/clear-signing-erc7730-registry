@@ -1,0 +1,121 @@
+{
+    "$schema": "../../specs/erc7730-v2.schema.json",
+    "context": {
+        "$id": "vTAO LayerZero OFT Adapter",
+        "contract": {
+            "deployments": [
+                {
+                    "chainId": 964,
+                    "address": "0x79Ce842dEAA61D7668a2f31D964502F0d777bA89"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "owner": "Latent",
+        "contractName": "vTAO LayerZero OFT Adapter",
+        "info": {
+            "url": "https://tao.app/bridge"
+        },
+        "constants": {
+            "vTAO": "0x31049849CCdD983D8F401077537438eaF12B12Af"
+        },
+        "enums": {
+            "layerZeroEndpoint": {
+                "30101": "Ethereum",
+                "30102": "BNB Smart Chain",
+                "30106": "Avalanche",
+                "30109": "Polygon",
+                "30110": "Arbitrum",
+                "30111": "Optimism",
+                "30145": "Gnosis",
+                "30184": "Base",
+                "30362": "Berachain",
+                "30374": "Bittensor EVM"
+            }
+        }
+    },
+    "display": {
+        "formats": {
+            "send((uint32 dstEid,bytes32 to,uint256 amountLD,uint256 minAmountLD,bytes extraOptions,bytes composeMsg,bytes oftCmd) _sendParam,(uint256 nativeFee,uint256 lzTokenFee) _fee,address _refundAddress)": {
+                "intent": "Bridge vTAO",
+                "fields": [
+                    {
+                        "path": "#._sendParam.dstEid",
+                        "label": "Destination network",
+                        "format": "enum",
+                        "params": {
+                            "$ref": "$.metadata.enums.layerZeroEndpoint"
+                        },
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.to",
+                        "label": "Recipient",
+                        "format": "raw",
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.amountLD",
+                        "label": "Amount",
+                        "format": "tokenAmount",
+                        "params": {
+                            "token": "$.metadata.constants.vTAO"
+                        },
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.minAmountLD",
+                        "label": "Minimum received",
+                        "format": "tokenAmount",
+                        "params": {
+                            "token": "$.metadata.constants.vTAO"
+                        },
+                        "visible": "always"
+                    },
+                    {
+                        "path": "@.value",
+                        "label": "Bridge fee",
+                        "format": "amount",
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._refundAddress",
+                        "label": "Refund address",
+                        "format": "addressName",
+                        "params": {
+                            "types": ["eoa", "wallet"],
+                            "sources": ["local", "ens"]
+                        },
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.extraOptions",
+                        "label": "Options",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._sendParam.composeMsg",
+                        "label": "Compose message",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._sendParam.oftCmd",
+                        "label": "OFT command",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._fee.nativeFee",
+                        "label": "Native fee",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._fee.lzTokenFee",
+                        "label": "LayerZero token fee",
+                        "visible": "never"
+                    }
+                ]
+            }
+        }
+    }
+}

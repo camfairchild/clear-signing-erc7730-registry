@@ -1,0 +1,58 @@
+{
+  "$schema": "../../../specs/erc7730-tests-v2.schema.json",
+  "descriptor": "../calldata-virtual-tao.json",
+  "dataProvider": {
+    "tokens": {
+      "0x31049849ccdd983d8f401077537438eaf12b12af": { "symbol": "vTAO", "decimals": 18, "name": "Virtual TAO" }
+    }
+  },
+  "tests": [
+    {
+      "description": "Stake TAO - chain 964",
+      "rawTx": "0x02f8568203c401843b9aca0084773594008307a1209431049849ccdd983d8f401077537438eaf12b12af8814d1120d7b160000a42647620400000000000000000000000062425cd6bdcb6bfe51558ea465b063486b70dc9fc0",
+      "expected": {
+        "intent": "Stake TAO",
+        "interpolatedIntent": "Stake 1.5 TAO for 0x62425cD6BDcB6bFE51558EA465B063486B70dc9f",
+        "owner": "Latent",
+        "fields": [
+          { "label": "Amount", "value": "1.5 TAO" },
+          { "label": "Recipient", "value": "0x62425cD6BDcB6bFE51558EA465B063486B70dc9f" }
+        ]
+      }
+    },
+    {
+      "description": "Unstake vTAO - chain 964",
+      "rawTx": "0x02f84e8203c401843b9aca0084773594008307a1209431049849ccdd983d8f401077537438eaf12b12af80a42e17de7800000000000000000000000000000000000000000000000022b1c8c1227a0000c0",
+      "expected": {
+        "intent": "Unstake vTAO",
+        "interpolatedIntent": "Unstake 2.5 vTAO",
+        "owner": "Latent",
+        "fields": [{ "label": "Amount", "value": "2.5 vTAO" }]
+      }
+    },
+    {
+      "description": "Approve vTAO - chain 964",
+      "rawTx": "0x02f86f8203c401843b9aca0084773594008307a1209431049849ccdd983d8f401077537438eaf12b12af80b844095ea7b300000000000000000000000079ce842deaa61d7668a2f31d964502f0d777ba8900000000000000000000000000000000000000000000000091b77e5e5d9a0000c0",
+      "expected": {
+        "intent": "Approve vTAO",
+        "owner": "Latent",
+        "fields": [
+          { "label": "Spender", "value": "0x79Ce842dEAA61D7668a2f31D964502F0d777bA89" },
+          { "label": "Amount", "value": "10.5 vTAO" }
+        ]
+      }
+    },
+    {
+      "description": "Approve vTAO unlimited - chain 964",
+      "rawTx": "0x02f86f8203c401843b9aca0084773594008307a1209431049849ccdd983d8f401077537438eaf12b12af80b844095ea7b300000000000000000000000079ce842deaa61d7668a2f31d964502f0d777ba89ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0",
+      "expected": {
+        "intent": "Approve vTAO",
+        "owner": "Latent",
+        "fields": [
+          { "label": "Spender", "value": "0x79Ce842dEAA61D7668a2f31D964502F0d777bA89" },
+          { "label": "Amount", "value": "Unlimited" }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+    "$schema": "../../specs/erc7730-v2.schema.json",
+    "context": {
+        "$id": "vTAO LayerZero OFT",
+        "contract": {
+            "deployments": [
+                {
+                    "chainId": 1,
+                    "address": "0xe9f6D9898f9269B519E1435E6ebafF766c7f46BF"
+                },
+                {
+                    "chainId": 10,
+                    "address": "0x58ea2Bb193B1429Cb90D24195E6ac4Ccb0B27a12"
+                },
+                {
+                    "chainId": 56,
+                    "address": "0x58ea2Bb193B1429Cb90D24195E6ac4Ccb0B27a12"
+                },
+                {
+                    "chainId": 100,
+                    "address": "0x58ea2Bb193B1429Cb90D24195E6ac4Ccb0B27a12"
+                },
+                {
+                    "chainId": 137,
+                    "address": "0x58ea2Bb193B1429Cb90D24195E6ac4Ccb0B27a12"
+                },
+                {
+                    "chainId": 8453,
+                    "address": "0xe9f6D9898f9269B519E1435E6ebafF766c7f46BF"
+                },
+                {
+                    "chainId": 42161,
+                    "address": "0xa793dcea527a481aC0a2C3a1F37EDbE586146Bce"
+                },
+                {
+                    "chainId": 43114,
+                    "address": "0x58ea2Bb193B1429Cb90D24195E6ac4Ccb0B27a12"
+                },
+                {
+                    "chainId": 80094,
+                    "address": "0x0D4d041d1209bFFD4a843759Ee6d19CD394EEE56"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "owner": "Latent",
+        "contractName": "vTAO LayerZero OFT",
+        "info": {
+            "url": "https://tao.app/bridge"
+        },
+        "token": {
+            "name": "Virtual TAO",
+            "ticker": "vTAO",
+            "decimals": 18
+        },
+        "enums": {
+            "layerZeroEndpoint": {
+                "30101": "Ethereum",
+                "30102": "BNB Smart Chain",
+                "30106": "Avalanche",
+                "30109": "Polygon",
+                "30110": "Arbitrum",
+                "30111": "Optimism",
+                "30145": "Gnosis",
+                "30184": "Base",
+                "30362": "Berachain",
+                "30374": "Bittensor EVM"
+            }
+        }
+    },
+    "display": {
+        "formats": {
+            "send((uint32 dstEid,bytes32 to,uint256 amountLD,uint256 minAmountLD,bytes extraOptions,bytes composeMsg,bytes oftCmd) _sendParam,(uint256 nativeFee,uint256 lzTokenFee) _fee,address _refundAddress)": {
+                "intent": "Bridge vTAO",
+                "fields": [
+                    {
+                        "path": "#._sendParam.dstEid",
+                        "label": "Destination network",
+                        "format": "enum",
+                        "params": {
+                            "$ref": "$.metadata.enums.layerZeroEndpoint"
+                        },
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.to",
+                        "label": "Recipient",
+                        "format": "raw",
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.amountLD",
+                        "label": "Amount",
+                        "format": "tokenAmount",
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.minAmountLD",
+                        "label": "Minimum received",
+                        "format": "tokenAmount",
+                        "visible": "always"
+                    },
+                    {
+                        "path": "@.value",
+                        "label": "Bridge fee",
+                        "format": "amount",
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._refundAddress",
+                        "label": "Refund address",
+                        "format": "addressName",
+                        "params": {
+                            "types": ["eoa", "wallet"],
+                            "sources": ["local", "ens"]
+                        },
+                        "visible": "always"
+                    },
+                    {
+                        "path": "#._sendParam.extraOptions",
+                        "label": "Options",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._sendParam.composeMsg",
+                        "label": "Compose message",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._sendParam.oftCmd",
+                        "label": "OFT command",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._fee.nativeFee",
+                        "label": "Native fee",
+                        "visible": "never"
+                    },
+                    {
+                        "path": "#._fee.lzTokenFee",
+                        "label": "LayerZero token fee",
+                        "visible": "never"
+                    }
+                ]
+            }
+        }
+    }
+}
